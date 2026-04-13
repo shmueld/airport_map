@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airport Route Explorer</title>
+    <meta name="description" content="Interactive world map of airports and airline routes. Click any airport to explore destinations, airlines, distances and flight times.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Leaflet MarkerCluster -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <!-- App Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Loading airport data...</p>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div id="search-container">
+        <div class="search-input-wrapper">
+            <i data-lucide="search" class="search-icon"></i>
+            <input
+                type="text"
+                id="search-input"
+                placeholder="Search airports by name, city, or IATA code..."
+                autocomplete="off"
+            >
+            <button id="search-clear" class="search-clear-btn" aria-label="Clear search">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <ul id="search-results" class="search-results"></ul>
+    </div>
+
+    <!-- Stats Badge -->
+    <div id="stats-badge">
+        <i data-lucide="plane" class="stats-icon"></i>
+        <span id="stats-text">Loading...</span>
+    </div>
+
+    <!-- Map -->
+    <div id="map"></div>
+
+    <!-- Side Panel -->
+    <div id="side-panel" class="side-panel">
+        <div class="panel-header">
+            <div class="panel-title-row">
+                <h2 id="panel-airport-name" class="panel-title"></h2>
+                <button id="panel-close" class="panel-close-btn" aria-label="Close panel">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <p id="panel-airport-location" class="panel-subtitle"></p>
+        </div>
+
+        <div class="panel-meta">
+            <div class="meta-item">
+                <i data-lucide="tag" class="meta-icon"></i>
+                <div class="meta-content">
+                    <span class="meta-label">IATA / ICAO</span>
+                    <span id="panel-codes" class="meta-value"></span>
+                </div>
+            </div>
+            <div class="meta-item">
+                <i data-lucide="mountain" class="meta-icon"></i>
+                <div class="meta-content">
+                    <span class="meta-label">Elevation</span>
+                    <span id="panel-elevation" class="meta-value"></span>
+                </div>
+            </div>
+            <div class="meta-item">
+                <i data-lucide="clock" class="meta-icon"></i>
+                <div class="meta-content">
+                    <span class="meta-label">Timezone</span>
+                    <span id="panel-timezone" class="meta-value"></span>
+                </div>
+            </div>
+            <div class="meta-item">
+                <i data-lucide="globe" class="meta-icon"></i>
+                <div class="meta-content">
+                    <span class="meta-label">Continent</span>
+                    <span id="panel-continent" class="meta-value"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-routes-section">
+            <div class="routes-tabs">
+                <button id="tab-outbound" class="route-tab active" data-tab="outbound">
+                    <i data-lucide="plane-takeoff"></i>
+                    <span>Outbound</span>
+                    <span id="outbound-count" class="tab-count">0</span>
+                </button>
+                <button id="tab-inbound" class="route-tab" data-tab="inbound">
+                    <i data-lucide="plane-landing"></i>
+                    <span>Inbound</span>
+                    <span id="inbound-count" class="tab-count">0</span>
+                </button>
+            </div>
+            <div id="routes-list" class="routes-list"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
