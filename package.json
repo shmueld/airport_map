@@ -1,0 +1,21 @@
+{
+  "name": "airport_map",
+  "version": "1.0.0",
+  "description": "Interactive world map of airports and airline routes. Click any airport to explore destinations, airlines, distances, and flight times.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shmueld/airport_map.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/shmueld/airport_map/issues"
+  },
+  "homepage": "https://github.com/shmueld/airport_map#readme"
+}

@@ -26,7 +26,21 @@
     let routeLinesLayer = null;
     let selectedAirportIata = null;
     let activeTab = 'outbound';
-    let airportMarkers = {};     // IATA -> L.circleMarker
+    let airportMarkers = {};     // IATA -> L.Marker
+    let selectedMarkerInstance = null;
+
+    // --- Icons ---
+    const defaultIcon = L.divIcon({
+        className: 'airport-marker-icon',
+        iconSize: [10, 10],
+        iconAnchor: [5, 5]
+    });
+    
+    const selectedIcon = L.divIcon({
+        className: 'airport-marker-icon selected',
+        iconSize: [16, 16],
+        iconAnchor: [8, 8]
+    });
 
     // --- DOM Refs ---
     const $loading = document.getElementById('loading-overlay');
@@ -127,12 +141,8 @@
             const lng = parseFloat(airport.longitude);
             if (isNaN(lat) || isNaN(lng)) continue;
 
-            const marker = L.circleMarker([lat, lng], {
-                radius: 5,
-                fillColor: '#a3a3a3',
-                fillOpacity: 0.7,
-                color: '#737373',
-                weight: 1,
+            const marker = L.marker([lat, lng], {
+                icon: defaultIcon
             });
 
             marker.bindTooltip(
@@ -260,19 +270,14 @@
         activeTab = 'outbound';
 
         // Reset previously selected marker
-        for (const m of Object.values(airportMarkers)) {
-            m.setStyle({ fillColor: '#a3a3a3', color: '#737373', radius: 5, fillOpacity: 0.7 });
+        if (selectedMarkerInstance) {
+            selectedMarkerInstance.setIcon(defaultIcon);
         }
 
         // Highlight selected
-        const selectedMarker = airportMarkers[iata];
-        if (selectedMarker) {
-            selectedMarker.setStyle({
-                fillColor: '#d97706',
-                color: '#d97706',
-                radius: 8,
-                fillOpacity: 1,
-            });
+        selectedMarkerInstance = airportMarkers[iata];
+        if (selectedMarkerInstance) {
+            selectedMarkerInstance.setIcon(selectedIcon);
         }
 
         // Pan map
@@ -429,8 +434,9 @@
         selectedAirportIata = null;
 
         // Reset marker styles
-        for (const m of Object.values(airportMarkers)) {
-            m.setStyle({ fillColor: '#a3a3a3', color: '#737373', radius: 5, fillOpacity: 0.7 });
+        if (selectedMarkerInstance) {
+            selectedMarkerInstance.setIcon(defaultIcon);
+            selectedMarkerInstance = null;
         }
     }
 
