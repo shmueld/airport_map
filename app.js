@@ -61,6 +61,7 @@
     const $routesList = document.getElementById('routes-list');
     const $tabOutbound = document.getElementById('tab-outbound');
     const $tabInbound = document.getElementById('tab-inbound');
+    const $routeSearchInput = document.getElementById('route-search-input');
 
     // --- Init ---
     async function init() {
@@ -403,6 +404,7 @@
             activeTab = 'outbound';
             $tabOutbound.classList.add('active');
             $tabInbound.classList.remove('active');
+            $routeSearchInput.value = '';
             renderRoutesList();
         });
 
@@ -410,6 +412,11 @@
             activeTab = 'inbound';
             $tabInbound.classList.add('active');
             $tabOutbound.classList.remove('active');
+            $routeSearchInput.value = '';
+            renderRoutesList();
+        });
+
+        $routeSearchInput.addEventListener('input', () => {
             renderRoutesList();
         });
 
@@ -454,10 +461,11 @@
         $outboundCount.textContent = outbound.length;
         $inboundCount.textContent = inbound.length;
 
-        // Reset to outbound tab
+        // Reset to outbound tab and clear search
         activeTab = 'outbound';
         $tabOutbound.classList.add('active');
         $tabInbound.classList.remove('active');
+        $routeSearchInput.value = '';
 
         renderRoutesList();
     }
@@ -483,6 +491,24 @@
                 km: r.km,
                 min: r.min,
             }));
+        }
+
+        // Filter routes using the search input
+        const query = $routeSearchInput.value.trim().toLowerCase();
+        if (query) {
+            routes = routes.filter(route => {
+                const dest = airportsData[route.destIata];
+                const destName = dest ? dest.name.toLowerCase() : '';
+                const destCity = dest ? dest.city_name.toLowerCase() : '';
+                const destCountry = dest ? dest.country.toLowerCase() : '';
+                
+                const iataMatch = route.destIata.toLowerCase().includes(query);
+                const carriersMatch = route.carriers.some(c => 
+                    c.iata.toLowerCase().includes(query) || c.name.toLowerCase().includes(query)
+                );
+
+                return iataMatch || destName.includes(query) || destCity.includes(query) || destCountry.includes(query) || carriersMatch;
+            });
         }
 
         if (routes.length === 0) {

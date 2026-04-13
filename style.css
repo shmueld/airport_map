@@ -548,6 +548,43 @@ html, body {
     color: var(--amber-500);
 }
 
+/* Route Search */
+.route-search-wrapper {
+    position: relative;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.route-search-icon {
+    position: absolute;
+    left: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    color: var(--gray-400);
+    pointer-events: none;
+}
+
+#route-search-input {
+    width: 100%;
+    padding: 8px 12px 8px 32px;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-family: var(--font-sans);
+    color: var(--gray-800);
+    transition: all var(--transition-fast);
+}
+
+#route-search-input:focus {
+    outline: none;
+    background: var(--white);
+    border-color: var(--amber-500);
+    box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.1);
+}
+
 /* Routes List */
 .routes-list {
     flex: 1;
