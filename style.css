@@ -316,6 +316,32 @@ html, body {
     color: var(--amber-500);
 }
 
+/* --- Credits Badge --- */
+#credits-badge {
+    position: fixed;
+    bottom: 24px;
+    right: 16px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--gray-500);
+}
+#credits-badge a {
+    color: var(--amber-500);
+    text-decoration: none;
+    font-weight: 600;
+}
+#credits-badge a:hover {
+    text-decoration: underline;
+}
+
 /* --- Side Panel --- */
 .side-panel {
     position: fixed;
