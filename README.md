@@ -51,6 +51,10 @@ airport_map/
 
 Airport and route data is fetched at runtime from [Jonty/airline-route-data](https://github.com/Jonty/airline-route-data). Each airport entry includes coordinates, metadata, and a list of routes with destination IATA codes, distances, flight durations, and operating airlines.
 
+## Credits
+
+Built with [Antigravity](https://antigravity.google/) — an AI coding assistant powered by **Claude Sonnet** by [Anthropic](https://www.anthropic.com/).
+
 ## License
 
 Data sourced from [Jonty/airline-route-data](https://github.com/Jonty/airline-route-data).
