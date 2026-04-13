@@ -145,21 +145,38 @@ html, body {
 
 /* --- Custom Markers --- */
 .airport-marker-icon {
-    background-color: var(--gray-400);
-    border: 1px solid var(--gray-600);
-    border-radius: 50%;
     opacity: 0.8;
     transition: all var(--transition-fast);
 }
+.airport-marker-icon.local {
+    background-color: var(--gray-400);
+    border: 1px solid var(--gray-500);
+    border-radius: 50%; /* Circles for local */
+}
+.airport-marker-icon.intl {
+    background-color: var(--gray-700);
+    border: 1px solid var(--gray-800);
+    border-radius: 3px; /* Squares for intl */
+}
+.airport-marker-icon.intl.lg {
+    border-radius: 4px;
+}
 .airport-marker-icon:hover {
-    background-color: var(--gray-500);
     opacity: 1;
+    transform: scale(1.15);
+}
+.airport-marker-icon.local:hover {
+    background-color: var(--gray-500);
+}
+.airport-marker-icon.intl:hover {
+    background-color: var(--gray-900);
 }
 .airport-marker-icon.selected {
-    background-color: var(--amber-500);
-    border-color: var(--amber-600);
-    opacity: 1;
+    background-color: var(--amber-500) !important;
+    border-color: var(--amber-600) !important;
+    opacity: 1 !important;
     z-index: 1000 !important;
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.25);
 }
 
 /* --- Search Bar --- */
@@ -334,6 +351,87 @@ html, body {
     height: 15px;
     color: var(--amber-500);
 }
+
+/* --- Legend --- */
+#map-legend {
+    position: fixed;
+    bottom: 70px;
+    left: 16px;
+    z-index: 1000;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    padding: 12px;
+    font-size: 12px;
+    color: var(--gray-600);
+    pointer-events: auto;
+}
+
+.legend-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--gray-400);
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+}
+
+.legend-group {
+    margin-bottom: 10px;
+}
+.legend-group:last-child {
+    margin-bottom: 0;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+.legend-item:last-child {
+    margin-bottom: 0;
+}
+
+.legend-label {
+    display: block;
+    font-size: 11px;
+    color: var(--gray-500);
+    margin-bottom: 6px;
+}
+
+.legend-sizes {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.legend-size {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.legend-icon {
+    background-color: var(--gray-400);
+    border: 1px solid var(--gray-500);
+}
+
+.legend-icon.local {
+    border-radius: 50%;
+}
+
+.legend-icon.intl {
+    background-color: var(--gray-700);
+    border-color: var(--gray-800);
+    border-radius: 3px;
+}
+
+.legend-icon.sm { width: 8px; height: 8px; }
+.legend-icon.md { width: 12px; height: 12px; }
+.legend-icon.lg { width: 16px; height: 16px; }
 
 /* --- Credits Badge --- */
 #credits-badge {

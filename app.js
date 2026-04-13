@@ -30,17 +30,33 @@
     let selectedMarkerInstance = null;
 
     // --- Icons ---
-    const defaultIcon = L.divIcon({
-        className: 'airport-marker-icon',
-        iconSize: [10, 10],
-        iconAnchor: [5, 5]
-    });
-    
-    const selectedIcon = L.divIcon({
-        className: 'airport-marker-icon selected',
-        iconSize: [16, 16],
-        iconAnchor: [8, 8]
-    });
+    const ICONS = {
+        local: { sm: null, md: null, lg: null },
+        intl: { sm: null, md: null, lg: null }
+    };
+    const SIZES = { sm: 8, md: 12, lg: 16 };
+    const SIZES_SELECTED = { sm: 14, md: 18, lg: 22 };
+
+    function initIcons() {
+        for (const type of ['local', 'intl']) {
+            for (const size of ['sm', 'md', 'lg']) {
+                const s = SIZES[size];
+                const selectedS = SIZES_SELECTED[size];
+                ICONS[type][size] = {
+                    default: L.divIcon({
+                        className: `airport-marker-icon ${type} ${size}`,
+                        iconSize: [s, s],
+                        iconAnchor: [s / 2, s / 2]
+                    }),
+                    selected: L.divIcon({
+                        className: `airport-marker-icon selected ${type} ${size}`,
+                        iconSize: [selectedS, selectedS],
+                        iconAnchor: [selectedS / 2, selectedS / 2]
+                    })
+                };
+            }
+        }
+    }
 
     // --- DOM Refs ---
     const $loading = document.getElementById('loading-overlay');
@@ -65,6 +81,7 @@
 
     // --- Init ---
     async function init() {
+        initIcons();
         initMap();
         await loadData();
         buildInboundMap();
@@ -126,6 +143,44 @@
         }
     }
 
+    function getAirportStats(iata, airport) {
+        let isIntl = false;
+        let totalRoutes = 0;
+        const myCountry = airport.country_code;
+
+        if (airport.routes) {
+            totalRoutes += airport.routes.length;
+            if (!isIntl) {
+                for (const r of airport.routes) {
+                    const dest = airportsData[r.iata];
+                    if (dest && dest.country_code !== myCountry) {
+                        isIntl = true;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        if (inboundMap[iata]) {
+            totalRoutes += inboundMap[iata].length;
+            if (!isIntl) {
+                for (const r of inboundMap[iata]) {
+                    const dest = airportsData[r.fromIata];
+                    if (dest && dest.country_code !== myCountry) {
+                        isIntl = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        let sizeCategory = 'sm';
+        if (totalRoutes >= 50) sizeCategory = 'lg';
+        else if (totalRoutes >= 15) sizeCategory = 'md';
+
+        return { isIntl, sizeCategory };
+    }
+
     // --- Markers ---
     function createMarkers() {
         markerCluster = L.markerClusterGroup({
@@ -142,8 +197,11 @@
             const lng = parseFloat(airport.longitude);
             if (isNaN(lat) || isNaN(lng)) continue;
 
+            const { isIntl, sizeCategory } = getAirportStats(iata, airport);
+            const type = isIntl ? 'intl' : 'local';
+
             const marker = L.marker([lat, lng], {
-                icon: defaultIcon
+                icon: ICONS[type][sizeCategory].default
             });
 
             marker.bindTooltip(
@@ -156,6 +214,8 @@
                 selectAirport(iata);
             });
             marker.airportIata = iata;
+            marker.airportType = type;
+            marker.airportSize = sizeCategory;
             airportMarkers[iata] = marker;
             markerCluster.addLayer(marker);
         }
@@ -272,13 +332,13 @@
 
         // Reset previously selected marker
         if (selectedMarkerInstance) {
-            selectedMarkerInstance.setIcon(defaultIcon);
+            selectedMarkerInstance.setIcon(ICONS[selectedMarkerInstance.airportType][selectedMarkerInstance.airportSize].default);
         }
 
         // Highlight selected
         selectedMarkerInstance = airportMarkers[iata];
         if (selectedMarkerInstance) {
-            selectedMarkerInstance.setIcon(selectedIcon);
+            selectedMarkerInstance.setIcon(ICONS[selectedMarkerInstance.airportType][selectedMarkerInstance.airportSize].selected);
         }
 
         // Pan map
@@ -442,7 +502,7 @@
 
         // Reset marker styles
         if (selectedMarkerInstance) {
-            selectedMarkerInstance.setIcon(defaultIcon);
+            selectedMarkerInstance.setIcon(ICONS[selectedMarkerInstance.airportType][selectedMarkerInstance.airportSize].default);
             selectedMarkerInstance = null;
         }
     }
