@@ -140,7 +140,10 @@
                 { direction: 'top', offset: [0, -6], className: '' }
             );
 
-            marker.on('click', () => selectAirport(iata));
+            marker.on('click', (e) => {
+                L.DomEvent.stopPropagation(e.originalEvent);
+                selectAirport(iata);
+            });
             marker.airportIata = iata;
             airportMarkers[iata] = marker;
             markerCluster.addLayer(marker);
@@ -323,7 +326,8 @@
                 [dstLat, dstLng]
             );
             line.destIata = destIata;
-            line.on('click', () => {
+            line.on('click', (e) => {
+                L.DomEvent.stopPropagation(e.originalEvent);
                 highlightRoute(destIata);
             });
             routeLinesLayer.addLayer(line);
