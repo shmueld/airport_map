@@ -31,8 +31,14 @@
     <div id="loading-overlay">
         <div class="loading-content">
             <div class="loading-spinner"></div>
-            <p class="loading-text">Loading airport data...</p>
+            <p class="loading-text" data-i18n="loading">Loading airport data...</p>
         </div>
+    </div>
+
+    <!-- Language Toggle -->
+    <div id="language-toggle" class="language-toggle">
+        <button id="lang-en" class="lang-btn active">EN</button>
+        <button id="lang-he" class="lang-btn">עב</button>
     </div>
 
     <!-- Search Bar -->
@@ -54,19 +60,19 @@
 
     <!-- Map Legend -->
     <div id="map-legend">
-        <h4 class="legend-title">Legend</h4>
+        <h4 class="legend-title" data-i18n="legendTitle">Legend</h4>
         <div class="legend-group">
             <div class="legend-item">
                 <div class="legend-icon local md"></div>
-                <span>Domestic</span>
+                <span data-i18n="legendDomestic">Domestic</span>
             </div>
             <div class="legend-item">
                 <div class="legend-icon intl md"></div>
-                <span>International</span>
+                <span data-i18n="legendInternational">International</span>
             </div>
         </div>
         <div class="legend-group">
-            <span class="legend-label">Routes</span>
+            <span class="legend-label" data-i18n="legendRoutes">Routes</span>
             <div class="legend-sizes">
                 <div class="legend-size">
                     <div class="legend-icon local sm"></div>
@@ -87,15 +93,15 @@
     <!-- Stats Badge -->
     <button id="stats-badge" class="stats-badge-btn">
         <i data-lucide="bar-chart-2" class="stats-icon"></i>
-        <span id="stats-text">Loading...</span>
-        <span class="stats-action">View Data</span>
+        <span id="stats-text" data-i18n="statsLoading">Loading...</span>
+        <span class="stats-action" data-i18n="statsAction">View Data</span>
     </button>
 
     <!-- Stats Overlay -->
     <div id="stats-overlay" class="stats-overlay hidden">
         <div class="stats-overlay-content">
             <div class="stats-header">
-                <h2>Global Aviation Statistics</h2>
+                <h2 data-i18n="statsTitle">Global Aviation Statistics</h2>
                 <button id="stats-close" class="panel-close-btn" aria-label="Close stats">
                     <i data-lucide="x"></i>
                 </button>
@@ -103,25 +109,25 @@
             
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-card-header" title="Airports with the highest number of direct outbound flight destinations.">
+                    <div class="stat-card-header" data-i18n-title="statsConnectedTitle" title="Airports with the highest number of direct outbound flight destinations.">
                         <i data-lucide="map-pin"></i>
-                        <h3>Most Connected Airports</h3>
+                        <h3 data-i18n="statsConnected">Most Connected Airports</h3>
                     </div>
                     <ul id="stat-top-airports" class="stat-list"></ul>
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-card-header" title="Airports hosting the highest number of distinct airlines operating inbound and outbound flights.">
+                    <div class="stat-card-header" data-i18n-title="statsHubsTitle" title="Airports hosting the highest number of distinct airlines operating inbound and outbound flights.">
                         <i data-lucide="users"></i>
-                        <h3>Top Carrier Hubs</h3>
+                        <h3 data-i18n="statsHubs">Top Carrier Hubs</h3>
                     </div>
                     <ul id="stat-top-hubs" class="stat-list"></ul>
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-card-header" title="Airlines that operate the highest number of unique flight routes globally (not the number of planes or frequency).">
+                    <div class="stat-card-header" data-i18n-title="statsAirlinesTitle" title="Airlines that operate the highest number of unique flight routes globally (not the number of planes or frequency).">
                         <i data-lucide="plane"></i>
-                        <h3>Top Global Airlines</h3>
+                        <h3 data-i18n="statsAirlines">Top Global Airlines</h3>
                     </div>
                     <ul id="stat-top-airlines" class="stat-list"></ul>
                 </div>
@@ -129,21 +135,21 @@
                 <div class="stat-card stat-card-wide">
                     <div class="stat-card-header">
                         <i data-lucide="activity"></i>
-                        <h3>Notable Records</h3>
+                        <h3 data-i18n="statsRecords">Notable Records</h3>
                     </div>
                     <div class="stat-records">
                         <div class="stat-record">
-                            <span class="record-label">Longest Flight</span>
+                            <span class="record-label" data-i18n="recordLongest">Longest Flight</span>
                             <span id="record-longest" class="record-value">Loading...</span>
                             <span id="record-longest-sub" class="record-sub">Loading...</span>
                         </div>
                         <div class="stat-record">
-                            <span class="record-label">Shortest Flight</span>
+                            <span class="record-label" data-i18n="recordShortest">Shortest Flight</span>
                             <span id="record-shortest" class="record-value">Loading...</span>
                             <span id="record-shortest-sub" class="record-sub">Loading...</span>
                         </div>
                         <div class="stat-record">
-                            <span class="record-label">Busiest Route (Competing Airlines)</span>
+                            <span class="record-label" data-i18n="recordBusiest">Busiest Route (Competing Airlines)</span>
                             <span id="record-busiest" class="record-value">Loading...</span>
                             <span id="record-busiest-sub" class="record-sub">Loading...</span>
                         </div>
@@ -177,28 +183,28 @@
             <div class="meta-item">
                 <i data-lucide="tag" class="meta-icon"></i>
                 <div class="meta-content">
-                    <span class="meta-label">IATA / ICAO</span>
+                    <span class="meta-label" data-i18n="metaCodes">IATA / ICAO</span>
                     <span id="panel-codes" class="meta-value"></span>
                 </div>
             </div>
             <div class="meta-item">
                 <i data-lucide="mountain" class="meta-icon"></i>
                 <div class="meta-content">
-                    <span class="meta-label">Elevation</span>
+                    <span class="meta-label" data-i18n="metaElevation">Elevation</span>
                     <span id="panel-elevation" class="meta-value"></span>
                 </div>
             </div>
             <div class="meta-item">
                 <i data-lucide="clock" class="meta-icon"></i>
                 <div class="meta-content">
-                    <span class="meta-label">Timezone</span>
+                    <span class="meta-label" data-i18n="metaTimezone">Timezone</span>
                     <span id="panel-timezone" class="meta-value"></span>
                 </div>
             </div>
             <div class="meta-item">
                 <i data-lucide="globe" class="meta-icon"></i>
                 <div class="meta-content">
-                    <span class="meta-label">Continent</span>
+                    <span class="meta-label" data-i18n="metaContinent">Continent</span>
                     <span id="panel-continent" class="meta-value"></span>
                 </div>
             </div>
@@ -208,12 +214,12 @@
             <div class="routes-tabs">
                 <button id="tab-outbound" class="route-tab active" data-tab="outbound">
                     <i data-lucide="plane-takeoff"></i>
-                    <span>Outbound</span>
+                    <span data-i18n="tabOutbound">Outbound</span>
                     <span id="outbound-count" class="tab-count">0</span>
                 </button>
                 <button id="tab-inbound" class="route-tab" data-tab="inbound">
                     <i data-lucide="plane-landing"></i>
-                    <span>Inbound</span>
+                    <span data-i18n="tabInbound">Inbound</span>
                     <span id="inbound-count" class="tab-count">0</span>
                 </button>
             </div>

@@ -18,7 +18,85 @@
         SA: 'South America',
     };
 
+    const CONTINENT_NAMES_HE = {
+        AF: 'אפריקה',
+        AN: 'אנטארקטיקה',
+        AS: 'אסיה',
+        EU: 'אירופה',
+        NA: 'צפון אמריקה',
+        OC: 'אוקיאניה',
+        SA: 'דרום אמריקה',
+    };
+
+    // --- Translations ---
+    const i18n = {
+        en: {
+            loading: 'Loading airport data...',
+            legendTitle: 'Legend',
+            legendDomestic: 'Domestic',
+            legendInternational: 'International',
+            legendRoutes: 'Routes',
+            searchPlaceholder: 'Search airports by name, city, or IATA code...',
+            statsLoading: 'Loading...',
+            statsAction: 'View Data',
+            statsTitle: 'Global Aviation Statistics',
+            statsConnected: 'Most Connected Airports',
+            statsConnectedTitle: 'Airports with the highest number of direct outbound flight destinations.',
+            statsHubs: 'Top Carrier Hubs',
+            statsHubsTitle: 'Airports hosting the highest number of distinct airlines operating inbound and outbound flights.',
+            statsAirlines: 'Top Global Airlines',
+            statsAirlinesTitle: 'Airlines that operate the highest number of unique flight routes globally (not the number of planes or frequency).',
+            statsRecords: 'Notable Records',
+            recordLongest: 'Longest Flight',
+            recordShortest: 'Shortest Flight',
+            recordBusiest: 'Busiest Route (Competing Airlines)',
+            metaCodes: 'IATA / ICAO',
+            metaElevation: 'Elevation',
+            metaTimezone: 'Timezone',
+            metaContinent: 'Continent',
+            tabOutbound: 'Outbound',
+            tabInbound: 'Inbound',
+            routeSearchPlaceholder: 'Filter routes by city, IATA or airline...',
+            noRoutes: 'No {tab} routes found',
+            noResults: 'No airports found',
+            statsText: '{count} airports · {routes} routes'
+        },
+        he: {
+            loading: 'טוען נתוני שדות תעופה...',
+            legendTitle: 'מקרא',
+            legendDomestic: 'מקומי',
+            legendInternational: 'בינלאומי',
+            legendRoutes: 'מסלולים',
+            searchPlaceholder: 'חפש שדות תעופה לפי שם, עיר או קוד IATA...',
+            statsLoading: 'טוען...',
+            statsAction: 'הצג נתונים',
+            statsTitle: 'סטטיסטיקות תעופה גלובליות',
+            statsConnected: 'שדות התעופה המחוברים ביותר',
+            statsConnectedTitle: 'שדות תעופה עם המספר הגבוה ביותר של יעדי טיסות יוצאות ישירות.',
+            statsHubs: 'האבים מובילים של חברות תעופה',
+            statsHubsTitle: 'שדות תעופה המארחים את המספר הגבוה ביותר של חברות תעופה שונות.',
+            statsAirlines: 'חברות התעופה הגלובליות המובילות',
+            statsAirlinesTitle: 'חברות התעופה המפעילות את מספר מסלולי הטיסה הייחודיים הגבוה ביותר בעולם.',
+            statsRecords: 'שיאים בולטים',
+            recordLongest: 'הטיסה הארוכה ביותר',
+            recordShortest: 'הטיסה הקצרה ביותר',
+            recordBusiest: 'המסלול העמוס ביותר (חברות מתחרות)',
+            metaCodes: 'IATA / ICAO',
+            metaElevation: 'גובה',
+            metaTimezone: 'אזור זמן',
+            metaContinent: 'יבשת',
+            tabOutbound: 'המראות',
+            tabInbound: 'נחיתות',
+            routeSearchPlaceholder: 'סנן מסלולים לפי עיר, IATA או חברה...',
+            noRoutes: 'לא נמצאו מסלולי {tab}',
+            noResults: 'לא נמצאו שדות תעופה',
+            statsText: '{count} שדות תעופה · {routes} מסלולים'
+        }
+    };
+
     // --- State ---
+    let currentLang = 'en';
+    let translatedAirports = {}; // Cache for dynamically fetched Wikidata names
     let airportsData = {};       // raw JSON keyed by IATA
     let inboundMap = {};         // IATA -> [{fromIata, carriers, km, min}]
     let map = null;
@@ -81,11 +159,102 @@
     const $statsBadge = document.getElementById('stats-badge');
     const $statsOverlay = document.getElementById('stats-overlay');
     const $statsClose = document.getElementById('stats-close');
+    const $langEnBtn = document.getElementById('lang-en');
+    const $langHeBtn = document.getElementById('lang-he');
+
+    function t(key, vars = {}) {
+        let str = i18n[currentLang][key] || key;
+        for (const [k, v] of Object.entries(vars)) {
+            str = str.replace(`{${k}}`, v);
+        }
+        return str;
+    }
+
+    function updateDOMTranslations() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            el.textContent = t(key);
+        });
+        document.querySelectorAll('[data-i18n-title]').forEach(el => {
+            const key = el.getAttribute('data-i18n-title');
+            el.title = t(key);
+        });
+        $searchInput.placeholder = t('searchPlaceholder');
+        $routeSearchInput.placeholder = t('routeSearchPlaceholder');
+
+        if (currentLang === 'he') {
+            document.body.setAttribute('dir', 'rtl');
+            document.body.classList.add('rtl-mode');
+        } else {
+            document.body.removeAttribute('dir');
+            document.body.classList.remove('rtl-mode');
+        }
+
+        // Update active content
+        updateStats();
+        if (selectedAirportIata) {
+            populatePanel(selectedAirportIata, airportsData[selectedAirportIata]);
+        }
+    }
+
+    function initLanguageToggle() {
+        $langEnBtn.addEventListener('click', () => {
+            currentLang = 'en';
+            $langEnBtn.classList.add('active');
+            $langHeBtn.classList.remove('active');
+            updateDOMTranslations();
+        });
+        $langHeBtn.addEventListener('click', () => {
+            currentLang = 'he';
+            $langHeBtn.classList.add('active');
+            $langEnBtn.classList.remove('active');
+            updateDOMTranslations();
+        });
+    }
+
+    // --- Dynamic API Fetching ---
+    async function fetchHebrewDetails(iata) {
+        if (translatedAirports[iata]) return translatedAirports[iata];
+
+        const query = `
+            SELECT ?airportLabel ?cityLabel WHERE {
+              ?airport wdt:P238 "${iata}".
+              OPTIONAL { ?airport wdt:P131 ?city. }
+              SERVICE wikibase:label { bd:serviceParam wikibase:language "he,en". }
+            } LIMIT 1
+        `;
+        const url = `https://query.wikidata.org/sparql?query=${encodeURIComponent(query)}&format=json&origin=*`;
+
+        try {
+            const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+            if (res.ok) {
+                const data = await res.json();
+                const bindings = data.results.bindings[0];
+                if (bindings) {
+                    const result = {
+                        airportHe: bindings.airportLabel?.value || null,
+                        cityHe: bindings.cityLabel?.value || null
+                    };
+                    // Only cache if it's actually hebrew
+                    if (result.airportHe && /[\u0590-\u05FF]/.test(result.airportHe)) {
+                        translatedAirports[iata] = result;
+                        return result;
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('Silent Wikidata fetch failure for ' + iata);
+        }
+        translatedAirports[iata] = { airportHe: null, cityHe: null }; // cache null to prevent refetch
+        return translatedAirports[iata];
+    }
 
     // --- Init ---
     async function init() {
         initIcons();
         initMap();
+        initLanguageToggle();
+        updateDOMTranslations();
         await loadData();
         buildInboundMap();
         createMarkers();
@@ -164,7 +333,7 @@
                 }
             }
         }
-        
+
         if (inboundMap[iata]) {
             totalRoutes += inboundMap[iata].length;
             if (!isIntl) {
@@ -213,6 +382,24 @@
                 { direction: 'top', offset: [0, -6], className: '' }
             );
 
+            marker.on('mouseover', async () => {
+                let text = `<strong>${airport.iata}</strong> — ${airport.name}`;
+                if (currentLang === 'he') {
+                    const cached = translatedAirports[iata];
+                    if (cached && cached.airportHe) {
+                        text += ` - ${cached.airportHe}`;
+                    } else {
+                        // Optimistically update after fetching
+                        fetchHebrewDetails(iata).then(heData => {
+                            if (heData && heData.airportHe && currentLang === 'he') {
+                                marker.setTooltipContent(`<strong>${airport.iata}</strong> — ${airport.name} - ${heData.airportHe}`);
+                            }
+                        });
+                    }
+                }
+                marker.setTooltipContent(text);
+            });
+
             marker.on('click', (e) => {
                 L.DomEvent.stopPropagation(e.originalEvent);
                 selectAirport(iata);
@@ -234,7 +421,10 @@
         for (const airport of Object.values(airportsData)) {
             totalRoutes += (airport.routes || []).length;
         }
-        $statsText.textContent = `${count.toLocaleString()} airports · ${totalRoutes.toLocaleString()} routes`;
+        $statsText.textContent = t('statsText', {
+            count: count.toLocaleString(),
+            routes: totalRoutes.toLocaleString()
+        });
     }
 
     // --- Loading ---
@@ -298,20 +488,26 @@
         results.sort((a, b) => a.priority - b.priority);
 
         if (results.length === 0) {
-            $searchResults.innerHTML = '<li class="no-results" style="padding:16px;color:#a3a3a3;text-align:center;cursor:default;">No airports found</li>';
+            $searchResults.innerHTML = `<li class="no-results" style="padding:16px;color:#a3a3a3;text-align:center;cursor:default;">${t('noResults')}</li>`;
             $searchResults.classList.add('visible');
             return;
         }
 
-        $searchResults.innerHTML = results.map(({ iata, airport }) => `
+        $searchResults.innerHTML = results.map(({ iata, airport }) => {
+            const cached = translatedAirports[iata];
+            const nameDisplay = currentLang === 'he' && cached && cached.airportHe ? `${airport.name} - ${cached.airportHe}` : airport.name;
+            const cityDisplay = currentLang === 'he' && cached && cached.cityHe ? `${airport.city_name} - ${cached.cityHe}` : airport.city_name;
+
+            return `
             <li data-iata="${iata}">
                 <span class="result-iata">${iata}</span>
                 <div class="result-info">
-                    <span class="result-name">${airport.name}</span>
-                    <span class="result-location">${airport.city_name}, ${airport.country}</span>
+                    <span class="result-name">${nameDisplay}</span>
+                    <span class="result-location">${cityDisplay}, ${airport.country}</span>
                 </div>
             </li>
-        `).join('');
+            `;
+        }).join('');
 
         $searchResults.querySelectorAll('li[data-iata]').forEach(li => {
             li.addEventListener('click', () => {
@@ -355,8 +551,13 @@
         // Draw route lines
         drawRouteLines(iata, airport);
 
-        // Populate panel
-        populatePanel(iata, airport);
+        // Fetch Hebrew names dynamically and populate
+        fetchHebrewDetails(iata).then((heData) => {
+            populatePanel(iata, airport, heData);
+        });
+
+        // Populate panel initially without hebrew
+        populatePanel(iata, airport, translatedAirports[iata]);
         openPanel();
     }
 
@@ -511,13 +712,23 @@
         }
     }
 
-    function populatePanel(iata, airport) {
-        $panelAirportName.textContent = airport.name;
-        $panelLocation.textContent = `${airport.city_name}, ${airport.country}`;
+    function populatePanel(iata, airport, heData = null) {
+        let nameDisplay = airport.name;
+        let locationDisplay = `${airport.city_name}, ${airport.country}`;
+
+        if (currentLang === 'he' && heData) {
+            if (heData.airportHe) nameDisplay = `${airport.name} - ${heData.airportHe}`;
+            if (heData.cityHe) locationDisplay = `${airport.city_name} - ${heData.cityHe}, ${airport.country}`;
+        }
+
+        $panelAirportName.textContent = nameDisplay;
+        $panelLocation.textContent = locationDisplay;
         $panelCodes.textContent = `${airport.iata}${airport.icao ? ' / ' + airport.icao : ''}`;
         $panelElevation.textContent = `${airport.elevation != null ? airport.elevation + ' m' : '—'}`;
         $panelTimezone.textContent = airport.timezone || '—';
-        $panelContinent.textContent = CONTINENT_NAMES[airport.continent] || airport.continent || '—';
+
+        const continentNamesMap = currentLang === 'he' ? CONTINENT_NAMES_HE : CONTINENT_NAMES;
+        $panelContinent.textContent = continentNamesMap[airport.continent] || airport.continent || '—';
 
         const outbound = airport.routes || [];
         const inbound = inboundMap[iata] || [];
@@ -565,9 +776,9 @@
                 const destName = dest ? dest.name.toLowerCase() : '';
                 const destCity = dest ? dest.city_name.toLowerCase() : '';
                 const destCountry = dest ? dest.country.toLowerCase() : '';
-                
+
                 const iataMatch = route.destIata.toLowerCase().includes(query);
-                const carriersMatch = route.carriers.some(c => 
+                const carriersMatch = route.carriers.some(c =>
                     c.iata.toLowerCase().includes(query) || c.name.toLowerCase().includes(query)
                 );
 
@@ -576,10 +787,11 @@
         }
 
         if (routes.length === 0) {
+            const tabName = activeTab === 'outbound' ? t('tabOutbound') : t('tabInbound');
             $routesList.innerHTML = `
                 <div class="no-routes">
                     <i data-lucide="plane-off"></i>
-                    <p>No ${activeTab} routes found</p>
+                    <p>${t('noRoutes', { tab: tabName })}</p>
                 </div>
             `;
             setTimeout(() => lucide.createIcons(), 50);
@@ -674,23 +886,23 @@
     }
 
     function calculateStatistics() {
-        const topConnected = []; 
-        const carrierHubs = []; 
-        const globalAirlines = {}; 
+        const topConnected = [];
+        const carrierHubs = [];
+        const globalAirlines = {};
         let longestFlight = null;
         let shortestFlight = null;
         let busiestRoute = null;
 
         for (const [iata, airport] of Object.entries(airportsData)) {
             const routes = airport.routes || [];
-            
+
             topConnected.push({ iata, airport, count: routes.length });
 
             const uniqueCarriers = new Set();
             for (const r of routes) {
                 (r.carriers || []).forEach(c => {
                     uniqueCarriers.add(c.iata);
-                    
+
                     if (!globalAirlines[c.iata]) {
                         globalAirlines[c.iata] = { name: c.name, count: 0 };
                     }
@@ -717,7 +929,7 @@
 
         topConnected.sort((a, b) => b.count - a.count);
         carrierHubs.sort((a, b) => b.count - a.count);
-        
+
         const topAirlines = Object.entries(globalAirlines)
             .map(([iata, data]) => ({ iata, name: data.name, count: data.count }))
             .sort((a, b) => b.count - a.count);

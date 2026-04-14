@@ -1101,3 +1101,98 @@ html, body {
     background: var(--gray-50) !important;
     color: var(--gray-800) !important;
 }
+
+/* --- Language Toggle & RTL Layout --- */
+.language-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 1000;
+    display: flex;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+[dir="rtl"] .language-toggle {
+    right: auto;
+    left: 16px;
+}
+
+.lang-btn {
+    background: transparent;
+    border: none;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-500);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-family: var(--font-sans);
+}
+
+.lang-btn:hover {
+    background: var(--gray-50);
+    color: var(--gray-800);
+}
+
+.lang-btn.active {
+    background: var(--gray-100);
+    color: var(--amber-500);
+}
+
+/* RTL Global Adjustments */
+[dir="rtl"] .side-panel {
+    right: auto;
+    left: 0;
+    border-left: none;
+    border-right: 1px solid var(--gray-200);
+    transform: translateX(-100%);
+}
+[dir="rtl"] .side-panel.open {
+    transform: translateX(0);
+}
+
+[dir="rtl"] #map-legend,
+[dir="rtl"] #stats-badge {
+    left: auto;
+    right: 16px;
+}
+
+[dir="rtl"] #credits-badge {
+    right: auto;
+    left: 16px;
+}
+
+[dir="rtl"] .search-icon {
+    left: auto;
+    right: 14px;
+}
+
+[dir="rtl"] #search-input {
+    padding: 12px 42px 12px 40px;
+}
+
+[dir="rtl"] .search-clear-btn {
+    right: auto;
+    left: 8px;
+}
+
+[dir="rtl"] .stats-action {
+    margin-left: 0;
+    margin-right: 4px;
+    padding-left: 0;
+    padding-right: 8px;
+    border-left: none;
+    border-right: 1px solid var(--gray-200);
+}
+
+[dir="rtl"] .route-search-icon {
+    left: auto;
+    right: 12px;
+}
+[dir="rtl"] #route-search-input {
+    padding: 10px 36px 10px 14px;
+}
