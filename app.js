@@ -78,6 +78,9 @@
     const $tabOutbound = document.getElementById('tab-outbound');
     const $tabInbound = document.getElementById('tab-inbound');
     const $routeSearchInput = document.getElementById('route-search-input');
+    const $statsBadge = document.getElementById('stats-badge');
+    const $statsOverlay = document.getElementById('stats-overlay');
+    const $statsClose = document.getElementById('stats-close');
 
     // --- Init ---
     async function init() {
@@ -89,6 +92,7 @@
         hideLoading();
         initSearch();
         initPanel();
+        initStatsOverlay();
         lucide.createIcons();
         updateStats();
     }
@@ -650,6 +654,121 @@
         const m = minutes % 60;
         if (h === 0) return `${m}m`;
         return `${h}h ${m > 0 ? m + 'm' : ''}`.trim();
+    }
+
+    // --- Statistics Overlay ---
+    let statsCalculated = false;
+
+    function initStatsOverlay() {
+        $statsBadge.addEventListener('click', () => {
+            $statsOverlay.classList.remove('hidden');
+            if (!statsCalculated) {
+                calculateStatistics();
+                statsCalculated = true;
+            }
+        });
+
+        $statsClose.addEventListener('click', () => {
+            $statsOverlay.classList.add('hidden');
+        });
+    }
+
+    function calculateStatistics() {
+        const topConnected = []; 
+        const carrierHubs = []; 
+        const globalAirlines = {}; 
+        let longestFlight = null;
+        let shortestFlight = null;
+        let busiestRoute = null;
+
+        for (const [iata, airport] of Object.entries(airportsData)) {
+            const routes = airport.routes || [];
+            
+            topConnected.push({ iata, airport, count: routes.length });
+
+            const uniqueCarriers = new Set();
+            for (const r of routes) {
+                (r.carriers || []).forEach(c => {
+                    uniqueCarriers.add(c.iata);
+                    
+                    if (!globalAirlines[c.iata]) {
+                        globalAirlines[c.iata] = { name: c.name, count: 0 };
+                    }
+                    globalAirlines[c.iata].count++;
+                });
+
+                if (r.km > 0) {
+                    if (!longestFlight || r.km > longestFlight.km) {
+                        longestFlight = { src: airport, destIata: r.iata, km: r.km, min: r.min };
+                    }
+                    if (!shortestFlight || r.km < shortestFlight.km) {
+                        shortestFlight = { src: airport, destIata: r.iata, km: r.km, min: r.min };
+                    }
+                }
+
+                const carrierCount = (r.carriers || []).length;
+                if (!busiestRoute || carrierCount > busiestRoute.carrierCount) {
+                    busiestRoute = { src: airport, destIata: r.iata, carrierCount };
+                }
+            }
+
+            carrierHubs.push({ iata, airport, count: uniqueCarriers.size });
+        }
+
+        topConnected.sort((a, b) => b.count - a.count);
+        carrierHubs.sort((a, b) => b.count - a.count);
+        
+        const topAirlines = Object.entries(globalAirlines)
+            .map(([iata, data]) => ({ iata, name: data.name, count: data.count }))
+            .sort((a, b) => b.count - a.count);
+
+        document.getElementById('stat-top-airports').innerHTML = topConnected.slice(0, 10).map((item, i) => `
+            <li>
+                <div class="stat-list-item-main">
+                    <span class="stat-list-item-title">${i + 1}. ${item.airport.name} (${item.iata})</span>
+                    <span class="stat-list-item-sub">${item.airport.city_name}, ${item.airport.country}</span>
+                </div>
+                <span class="stat-list-item-value">${item.count}</span>
+            </li>
+        `).join('');
+
+        document.getElementById('stat-top-hubs').innerHTML = carrierHubs.slice(0, 10).map((item, i) => `
+            <li>
+                <div class="stat-list-item-main">
+                    <span class="stat-list-item-title">${i + 1}. ${item.airport.name} (${item.iata})</span>
+                    <span class="stat-list-item-sub">${item.airport.city_name}, ${item.airport.country}</span>
+                </div>
+                <span class="stat-list-item-value">${item.count}</span>
+            </li>
+        `).join('');
+
+        document.getElementById('stat-top-airlines').innerHTML = topAirlines.slice(0, 10).map((item, i) => `
+            <li>
+                <div class="stat-list-item-main">
+                    <span class="stat-list-item-title">${i + 1}. ${item.name}</span>
+                    <span class="stat-list-item-sub">Code: ${item.iata}</span>
+                </div>
+                <span class="stat-list-item-value">${item.count.toLocaleString()}</span>
+            </li>
+        `).join('');
+
+        if (longestFlight) {
+            const dest = airportsData[longestFlight.destIata];
+            document.getElementById('record-longest').textContent = `${longestFlight.km.toLocaleString()} km`;
+            document.getElementById('record-longest-sub').textContent = `${longestFlight.src.iata} (${longestFlight.src.city_name}) ➔ ${longestFlight.destIata} (${dest ? dest.city_name : 'Unknown'})`;
+        }
+
+        if (shortestFlight) {
+            const dest = airportsData[shortestFlight.destIata];
+            document.getElementById('record-shortest').textContent = `${shortestFlight.km.toLocaleString()} km`;
+            document.getElementById('record-shortest-sub').textContent = `${shortestFlight.src.iata} (${shortestFlight.src.city_name}) ➔ ${shortestFlight.destIata} (${dest ? dest.city_name : 'Unknown'})`;
+        }
+
+        if (busiestRoute) {
+            const dest = airportsData[busiestRoute.destIata];
+            document.getElementById('record-busiest').textContent = `${busiestRoute.carrierCount} Competing Airlines`;
+            document.getElementById('record-busiest-sub').textContent = `${busiestRoute.src.iata} (${busiestRoute.src.city_name}) ➔ ${busiestRoute.destIata} (${dest ? dest.city_name : 'Unknown'})`;
+        }
     }
 
     // --- Boot ---

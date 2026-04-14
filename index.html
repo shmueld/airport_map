@@ -85,9 +85,72 @@
     </div>
 
     <!-- Stats Badge -->
-    <div id="stats-badge">
-        <i data-lucide="plane" class="stats-icon"></i>
+    <button id="stats-badge" class="stats-badge-btn">
+        <i data-lucide="bar-chart-2" class="stats-icon"></i>
         <span id="stats-text">Loading...</span>
+        <span class="stats-action">View Data</span>
+    </button>
+
+    <!-- Stats Overlay -->
+    <div id="stats-overlay" class="stats-overlay hidden">
+        <div class="stats-overlay-content">
+            <div class="stats-header">
+                <h2>Global Aviation Statistics</h2>
+                <button id="stats-close" class="panel-close-btn" aria-label="Close stats">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-header" title="Airports with the highest number of direct outbound flight destinations.">
+                        <i data-lucide="map-pin"></i>
+                        <h3>Most Connected Airports</h3>
+                    </div>
+                    <ul id="stat-top-airports" class="stat-list"></ul>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header" title="Airports hosting the highest number of distinct airlines operating inbound and outbound flights.">
+                        <i data-lucide="users"></i>
+                        <h3>Top Carrier Hubs</h3>
+                    </div>
+                    <ul id="stat-top-hubs" class="stat-list"></ul>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header" title="Airlines that operate the highest number of unique flight routes globally (not the number of planes or frequency).">
+                        <i data-lucide="plane"></i>
+                        <h3>Top Global Airlines</h3>
+                    </div>
+                    <ul id="stat-top-airlines" class="stat-list"></ul>
+                </div>
+
+                <div class="stat-card stat-card-wide">
+                    <div class="stat-card-header">
+                        <i data-lucide="activity"></i>
+                        <h3>Notable Records</h3>
+                    </div>
+                    <div class="stat-records">
+                        <div class="stat-record">
+                            <span class="record-label">Longest Flight</span>
+                            <span id="record-longest" class="record-value">Loading...</span>
+                            <span id="record-longest-sub" class="record-sub">Loading...</span>
+                        </div>
+                        <div class="stat-record">
+                            <span class="record-label">Shortest Flight</span>
+                            <span id="record-shortest" class="record-value">Loading...</span>
+                            <span id="record-shortest-sub" class="record-sub">Loading...</span>
+                        </div>
+                        <div class="stat-record">
+                            <span class="record-label">Busiest Route (Competing Airlines)</span>
+                            <span id="record-busiest" class="record-value">Loading...</span>
+                            <span id="record-busiest-sub" class="record-sub">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Credits Badge -->
